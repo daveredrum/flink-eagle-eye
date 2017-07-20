@@ -1,0 +1,14 @@
+data/
+target/
+*.iml
+.idea/
+venv/
+*.pyc
+__pycache__/
+bmscore/target/
+indexing/target/
+NaiveBayes/target/
+server/target/
+website/
+flink-java-project/target/
+

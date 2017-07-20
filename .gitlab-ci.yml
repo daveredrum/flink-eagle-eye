@@ -1,0 +1,58 @@
+image: kaiwinter/docker-java8-maven
+
+
+cache:
+  paths:
+    - .m2/
+
+variables:
+  MAVEN_OPTS: -Dmaven.repo.local=${CI_PROJECT_DIR}/.m2
+
+stages:
+  - build
+  - test
+  - package
+
+maven-build:
+  script:
+    - "mvn clean compile -B"
+  stage: build
+
+maven-test:
+  script:
+    - "mvn test -B"
+    - "cat */target/site/jacoco/index.html"
+  stage: test
+
+test-coverage:
+  script:
+    - "mvn test -B"
+    - for file in */target/site/jacoco/index.html; do test `cat $file | perl -pe 's|^.*Total.*?([0-9]+)%.*|\1|'` -gt 60 || exit 1; done
+  stage: test
+  only:
+    - master
+
+checkstyle:
+  script:
+    - "mvn compile checkstyle:check -B"
+  stage: test
+
+findbugs:
+  script:
+    - "mvn install -DskipTests -B"
+    - "mvn compile findbugs:check -B"
+  stage: test
+
+pmd:
+  script:
+    - "mvn install -DskipTests -B"
+    - "mvn pmd:check -B"
+  stage: test
+
+maven-package:
+  script:
+    - "mvn package -DskipTests -B"
+  stage: package
+#  only:
+#    - master
+
